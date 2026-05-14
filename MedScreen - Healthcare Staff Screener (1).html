@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedScreen — Healthcare Staff Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060D1F;--surface:#0B1628;--card:#0F1E35;--card2:#132030;--border:#1E3050;--border2:#243860;--teal:#0DCCB1;--teal2:#06A090;--blue:#2D7DD2;--blue2:#4D9DE0;--green:#10B981;--red:#EF4444;--amber:#F59E0B;--purple:#8B5CF6;--white:#F0F6FF;--text:#CBD5E1;--muted:#64748B;--muted2:#94A3B8}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 800px 600px at -10% 0%,rgba(13,204,177,.07) 0%,transparent 70%),radial-gradient(ellipse 600px 500px at 110% 80%,rgba(45,125,210,.08) 0%,transparent 70%)}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(13,204,177,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(13,204,177,.04) 1px,transparent 1px);background-size:48px 48px}
+.content{position:relative;z-index:10}
+header{background:rgba(6,13,31,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px rgba(13,204,177,.3)}
+.logo-name{font-weight:800;font-size:20px;color:var(--white);letter-spacing:-.5px;line-height:1}
+.logo-name span{color:var(--teal)}
+.logo-tagline{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.header-right{display:flex;align-items:center;gap:10px}
+.hbadge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:100px;border:1px solid}
+.hbadge-teal{background:rgba(13,204,177,.1);border-color:rgba(13,204,177,.3);color:var(--teal)}
+.hbadge-white{background:rgba(240,246,255,.06);border-color:rgba(240,246,255,.2);color:var(--white);font-weight:700}
+.hero{max-width:1100px;margin:0 auto;padding:80px 48px 60px;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(13,204,177,.08);border:1px solid rgba(13,204,177,.2);padding:7px 18px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-weight:800;font-size:62px;line-height:1.05;color:var(--white);letter-spacing:-2.5px;margin-bottom:20px}
+.hero h1 .grad{background:linear-gradient(135deg,var(--teal),#4D9DE0,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--muted2);line-height:1.7;max-width:560px;margin:0 auto 48px;font-weight:400}
+.stat-strip{display:inline-flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:60px}
+.stat-item{padding:16px 32px;text-align:center;border-right:1px solid var(--border)}
+.stat-item:last-child{border-right:none}
+.stat-val{font-weight:800;font-size:26px;color:var(--white);letter-spacing:-1px;line-height:1}
+.stat-val.teal{color:var(--teal)}.stat-val.blue{color:var(--blue2)}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.main{max-width:1100px;margin:0 auto;padding:0 48px 80px}
+.config-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden}
+.config-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),var(--blue),var(--purple))}
+.panel-head{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.panel-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(13,204,177,.12);border:1px solid rgba(13,204,177,.2)}
+.panel-title{font-weight:700;font-size:15px;color:var(--white)}
+.panel-sub{font-size:12px;color:var(--muted2);margin-top:2px}
+.field-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:block}
+.role-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:14px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--white);outline:none;transition:border-color .2s,box-shadow .2s}
+.role-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,204,177,.1)}
+.role-input::placeholder{color:#1E3050}
+.profiles-section{margin-bottom:28px}
+.profiles-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.profiles-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.profiles-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.profile-card{background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.profile-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,204,177,.1)}
+.profile-card.active{border-color:var(--teal);background:rgba(13,204,177,.06);box-shadow:0 0 0 1px rgba(13,204,177,.2),0 8px 24px rgba(13,204,177,.1)}
+.profile-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;border:2px solid}
+.avatar-green{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3)}
+.avatar-amber{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3)}
+.avatar-blue{background:rgba(45,125,210,.15);border-color:rgba(45,125,210,.3)}
+.avatar-red{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3)}
+.profile-name{font-weight:700;font-size:13px;color:var(--white);margin-bottom:3px}
+.profile-role{font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.4}
+.profile-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:3px 10px;border-radius:100px;border:1px solid;text-transform:uppercase}
+.tag-strong{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#34D399}
+.tag-over{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.3);color:#A78BFA}
+.tag-career{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#FCD34D}
+.tag-weak{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#F87171}
+.profile-check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;background:var(--teal);display:none;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700}
+.profile-card.active .profile-check{display:flex}
+.jd-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:24px}
+.textarea-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.char-pill{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);background:var(--surface);border:1px solid var(--border);padding:3px 10px;border-radius:100px}
+.paste-area{width:100%;min-height:200px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--white);resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s}
+.paste-area:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,204,177,.08)}
+.paste-area::placeholder{color:#1A2A40;font-style:italic}
+.screen-btn{width:100%;background:linear-gradient(135deg,var(--teal2),var(--blue));color:#fff;border:none;padding:18px 32px;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:40px}
+.screen-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(13,204,177,.3)}
+.screen-btn:disabled{background:var(--card);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
+.error-box{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#F87171;align-items:center;gap:10px}
+.error-box.active{display:flex}
+.loading-state{display:none;padding:80px 0;text-align:center}
+.loading-state.active{display:block}
+.loading-icon{font-size:48px;margin-bottom:20px;display:inline-block;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-steps{display:flex;flex-direction:column;gap:10px;max-width:320px;margin:20px auto 0}
+.loading-step{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);opacity:.4;transition:all .3s}
+.loading-step.active{opacity:1;border-color:var(--teal);color:var(--teal)}
+.step-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.results-section{display:none}
+.results-section.active{display:block;animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.candidate-banner{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;display:flex;align-items:center;gap:24px;margin-bottom:20px}
+.candidate-avatar-lg{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:2px solid}
+.candidate-name{font-weight:800;font-size:22px;color:var(--white);letter-spacing:-.5px;margin-bottom:4px}
+.candidate-role-tag{font-size:13px;color:var(--muted2);margin-bottom:10px}
+.candidate-tags{display:flex;gap:8px;flex-wrap:wrap}
+.ctag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;border:1px solid}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;display:flex;align-items:center;gap:28px;margin-bottom:20px;position:relative;overflow:hidden}
+.score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc-strong::before{background:linear-gradient(90deg,var(--green),#34D399)}
+.sc-medium::before{background:linear-gradient(90deg,var(--amber),#FCD34D)}
+.sc-weak::before{background:linear-gradient(90deg,var(--red),#F87171)}
+.score-donut{flex-shrink:0;position:relative;width:110px;height:110px}
+.score-donut svg{transform:rotate(-90deg)}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-pct{font-weight:800;font-size:28px;color:var(--white);letter-spacing:-1px;line-height:1}
+.score-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.score-info{flex:1}
+.score-verdict{font-weight:700;font-size:20px;color:var(--white);letter-spacing:-.3px;margin-bottom:8px}
+.score-summary{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:14px}
+.rec-badge{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:6px;border:1px solid}
+.rec-yes{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#34D399}
+.rec-no{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#F87171}
+.rec-maybe{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#FCD34D}
+.rec-review{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.3);color:#A78BFA}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px;animation:fadeUp .4s ease both}
+.rc-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.rc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.rci-green{background:rgba(16,185,129,.12)}
+.rci-red{background:rgba(239,68,68,.12)}
+.rci-blue{background:rgba(45,125,210,.12)}
+.rc-title{font-weight:700;font-size:13px;color:var(--white)}
+.rc-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(30,48,80,.5);font-size:12px;line-height:1.6;color:var(--text)}
+.rc-item:last-child{border-bottom:none;padding-bottom:0}
+.rc-dot{flex-shrink:0;margin-top:6px;width:5px;height:5px;border-radius:50%}
+.dot-g{background:var(--green)}.dot-r{background:var(--red)}
+.certs-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:16px}
+.certs-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cert-chip{display:flex;align-items:center;gap:6px;font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid;font-weight:500;color:var(--white)}
+.cert-present{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:#34D399}
+.cert-missing{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#F87171}
+.cert-partial{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25);color:#FCD34D}
+.feedback-card{background:linear-gradient(135deg,#0A1628,#0F1A35);border:1px solid rgba(13,204,177,.15);border-radius:10px;padding:28px 32px;margin-bottom:16px;position:relative;overflow:hidden}
+.feedback-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),var(--blue))}
+.feedback-lbl{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal);letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
+.feedback-lbl::before{content:'';width:20px;height:1px;background:var(--teal)}
+.feedback-text{font-size:14px;line-height:1.8;color:#CBD5E1;font-style:italic}
+.interview-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:10px;padding:22px;margin-bottom:32px}
+.iq-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)}
+.iq-item:last-child{border-bottom:none}
+.iq-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:var(--teal);flex-shrink:0;line-height:1.2}
+.iq-body strong{display:block;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px}
+.iq-body p{font-size:12px;color:var(--muted2);line-height:1.6}
+.reset-btn{background:transparent;border:1px solid var(--border2);border-radius:8px;padding:12px 24px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;letter-spacing:.06em;text-transform:uppercase}
+.reset-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(13,204,177,.05)}
+.cta-section{background:linear-gradient(135deg,#070F22,#0D1A3A,#070F22);border:1px solid rgba(13,204,177,.15);border-radius:16px;padding:56px 48px;text-align:center;margin-top:80px;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),var(--blue),var(--purple),transparent)}
+.cta-title{font-weight:800;font-size:36px;color:var(--white);letter-spacing:-1px;margin-bottom:12px;position:relative;z-index:1}
+.cta-title span{background:linear-gradient(135deg,var(--teal),var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta-sub{font-size:15px;color:var(--muted2);line-height:1.7;max-width:480px;margin:0 auto 32px;position:relative;z-index:1}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--teal2),var(--blue));color:#fff;padding:16px 36px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;border-radius:10px;text-decoration:none;transition:all .2s;position:relative;z-index:1;border:none;cursor:pointer}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(13,204,177,.3)}
+.cta-email{display:block;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted2);position:relative;z-index:1;letter-spacing:.04em}
+footer{background:var(--surface);border-top:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:space-between}
+.footer-brand{font-weight:700;font-size:13px;color:var(--teal)}
+.footer-credit{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:.04em}
+.footer-credit span{color:var(--white);font-weight:700}
+@media(max-width:768px){header,footer{padding-left:20px;padding-right:20px}.hero{padding:60px 20px 40px}.hero h1{font-size:38px;letter-spacing:-1.5px}.main{padding:0 20px 60px}.profiles-grid{grid-template-columns:1fr 1fr}.result-grid{grid-template-columns:1fr}.score-card{flex-direction:column;text-align:center}.candidate-banner{flex-direction:column;text-align:center}.header-right{display:none}}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+<div class="content">
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="logo-name">Med<span>Screen</span></div>
+      <div class="logo-tagline">Healthcare Staff Screener</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="hbadge hbadge-teal">Powered by Claude AI</div>
+    <div class="hbadge hbadge-white">Built by Adomokhai Joseph</div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow"><div class="eyebrow-dot"></div>Healthcare Recruitment Intelligence</div>
+  <h1>Screen Healthcare Staff<br><span class="grad">The Smart Way.</span></h1>
+  <p class="hero-sub">Select a candidate profile and paste a job description. MedScreen scores clinical fit, checks certifications, and generates role-specific interview questions — instantly.</p>
+  <div class="stat-strip">
+    <div class="stat-item"><div class="stat-val teal">30s</div><div class="stat-lbl">Per Candidate</div></div>
+    <div class="stat-item"><div class="stat-val blue">4hrs</div><div class="stat-lbl">Saved Per Hire</div></div>
+    <div class="stat-item"><div class="stat-val">4</div><div class="stat-lbl">Sample Profiles</div></div>
+    <div class="stat-item"><div class="stat-val teal">Free</div><div class="stat-lbl">Always</div></div>
+  </div>
+</div>
+
+<div class="main">
+<div id="inputSection">
+
+  <div class="config-panel">
+    <div class="panel-head">
+      <div class="panel-icon">🎯</div>
+      <div><div class="panel-title">Role Being Hired For</div><div class="panel-sub">Enter the position to calibrate screening criteria</div></div>
+    </div>
+    <span class="field-lbl">Job Title</span>
+    <input type="text" class="role-input" id="roleInput" placeholder="e.g. Registered Nurse, Medical Secretary, Clinical Coordinator...">
+  </div>
+
+  <div class="profiles-section">
+    <div class="profiles-label">Select a candidate profile to screen</div>
+    <div class="profiles-grid">
+      <div class="profile-card" id="card-1" onclick="selectProfile(1)">
+        <div class="profile-check">✓</div>
+        <div class="profile-avatar avatar-green">👩‍⚕️</div>
+        <div class="profile-name">Amara Osei</div>
+        <div class="profile-role">Registered Nurse · 6 years exp</div>
+        <span class="profile-tag tag-strong">Strong Match</span>
+      </div>
+      <div class="profile-card" id="card-2" onclick="selectProfile(2)">
+        <div class="profile-check">✓</div>
+        <div class="profile-avatar avatar-amber">👨‍⚕️</div>
+        <div class="profile-name">Dr. James Afolabi</div>
+        <div class="profile-role">Medical Doctor · Applying for Admin Role</div>
+        <span class="profile-tag tag-over">Overqualified</span>
+      </div>
+      <div class="profile-card" id="card-3" onclick="selectProfile(3)">
+        <div class="profile-check">✓</div>
+        <div class="profile-avatar avatar-blue">👩‍💼</div>
+        <div class="profile-name">Sofia Mensah</div>
+        <div class="profile-role">Hospitality Manager · Career Changer</div>
+        <span class="profile-tag tag-career">Career Change</span>
+      </div>
+      <div class="profile-card" id="card-4" onclick="selectProfile(4)">
+        <div class="profile-check">✓</div>
+        <div class="profile-avatar avatar-red">👨‍💼</div>
+        <div class="profile-name">Kevin Adeyemi</div>
+        <div class="profile-role">Retail Supervisor · No Healthcare Exp</div>
+        <span class="profile-tag tag-weak">Poor Match</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="jd-panel">
+    <div class="panel-head" style="margin-bottom:16px">
+      <div class="panel-icon" style="background:rgba(45,125,210,.12);border-color:rgba(45,125,210,.2)">📋</div>
+      <div><div class="panel-title">Job Description</div><div class="panel-sub">Paste the JD or select a profile to auto-load a sample</div></div>
+    </div>
+    <div class="textarea-head">
+      <span class="field-lbl">Job Description Text</span>
+      <span class="char-pill" id="jdCount">0 chars</span>
+    </div>
+    <textarea class="paste-area" id="jdInput" placeholder="Paste the healthcare job description here — qualifications, certifications, clinical experience, responsibilities..."></textarea>
+  </div>
+
+  <div class="error-box" id="errorBox"><span>⚠️</span><span id="errorText"></span></div>
+
+  <button class="screen-btn" id="screenBtn" onclick="runScreening()">
+    <span>🔍</span> Screen This Candidate
+  </button>
+</div>
+
+<div class="loading-state" id="loadingState">
+  <div class="loading-icon">⚕️</div>
+  <div style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px">Screening in progress...</div>
+  <div style="font-size:13px;color:var(--muted2);margin-bottom:24px">Analysing clinical fit and credentials</div>
+  <div class="loading-steps">
+    <div class="loading-step" id="step-1"><div class="step-dot"></div>Reading candidate profile</div>
+    <div class="loading-step" id="step-2"><div class="step-dot"></div>Matching clinical requirements</div>
+    <div class="loading-step" id="step-3"><div class="step-dot"></div>Checking certifications & credentials</div>
+    <div class="loading-step" id="step-4"><div class="step-dot"></div>Generating interview questions</div>
+    <div class="loading-step" id="step-5"><div class="step-dot"></div>Compiling screening report</div>
+  </div>
+</div>
+
+<div class="results-section" id="resultsSection">
+  <div class="candidate-banner" id="candidateBanner"></div>
+  <div class="score-card" id="scoreCard"></div>
+  <div class="result-grid">
+    <div class="result-card" style="animation-delay:.1s">
+      <div class="rc-head"><div class="rc-icon rci-green">✅</div><div class="rc-title">Clinical Strengths</div></div>
+      <div id="strengthsList"></div>
+    </div>
+    <div class="result-card" style="animation-delay:.15s">
+      <div class="rc-head"><div class="rc-icon rci-red">🚩</div><div class="rc-title">Gaps & Concerns</div></div>
+      <div id="gapsList"></div>
+    </div>
+  </div>
+  <div class="certs-card">
+    <div class="rc-head"><div class="rc-icon rci-blue">🏅</div><div class="rc-title">Certifications & Credentials Check</div></div>
+    <div class="certs-grid" id="certsGrid"></div>
+  </div>
+  <div class="feedback-card">
+    <div class="feedback-lbl">Recruiter Feedback Draft</div>
+    <div class="feedback-text" id="feedbackText"></div>
+  </div>
+  <div class="interview-card">
+    <div class="rc-head" style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div class="rc-icon" style="background:rgba(13,204,177,.12)">💬</div>
+      <div class="rc-title">Recommended Interview Questions</div>
+    </div>
+    <div id="interviewList"></div>
+  </div>
+  <button class="reset-btn" onclick="resetTool()">← Screen Another Candidate</button>
+</div>
+
+<div class="cta-section">
+  <div class="cta-title">Want this for your <span>healthcare organization?</span></div>
+  <p class="cta-sub">I build custom AI screening and workflow tools tailored to your specific roles, departments, and hiring process. Let's build it together.</p>
+  <a href="mailto:josephadomokhai37@gmail.com" class="cta-btn"><span>✉️</span> Get in Touch</a>
+  <span class="cta-email">josephadomokhai37@gmail.com</span>
+</div>
+</div>
+
+<footer>
+  <div class="footer-brand">MedScreen — Healthcare Staff Screener</div>
+  <div class="footer-credit">Built by <span>Adomokhai Joseph</span> · AI Workflow Engineer · Powered by Claude AI</div>
+</footer>
+</div>
+
+<script>
+const sampleJD=`MEDICAL SECRETARY / CLINICAL COORDINATOR\n\nWe are seeking an experienced Medical Secretary to join our busy outpatient healthcare facility.\n\nREQUIREMENTS:\n- Minimum 2 years experience in a healthcare administrative role\n- Proficiency in at least one EMR system (Epic, Meditech, or Cerner preferred)\n- Strong knowledge of medical terminology\n- Experience handling patient correspondence and clinical documentation\n- BLS certification preferred\n- Understanding of patient data confidentiality and HIPAA compliance\n- Excellent written and verbal communication skills\n- Diploma or degree in healthcare administration, nursing, or related field preferred\n\nRESPONSIBILITIES:\n- Manage patient scheduling, reminders, and follow-up communications\n- Prepare and maintain clinical documentation and patient records\n- Coordinate with clinical staff on patient care communications\n- Handle patient enquiries and complaints professionally`;
+
+const profiles={
+  1:{name:"Amara Osei",role:"Registered Nurse · 6 Years Experience",emoji:"👩‍⚕️",avatarClass:"avatar-green",ctags:[{t:"6 Years Exp",c:"cert-present"},{t:"ICU Certified",c:"cert-present"},{t:"EMR Proficient",c:"cert-present"}],score:89,scoreColor:"#10B981",scoreClass:"sc-strong",verdict:"Strong Clinical Match — Highly Recommended",summary:"Amara demonstrates exceptional alignment with the role requirements. Her 6-year nursing background, ICU specialization, EMR proficiency, and valid certifications make her one of the strongest candidates in this hiring pool.",recLabel:"✓ Recommend for Interview",recClass:"rec-yes",strengths:["6 years registered nursing experience significantly exceeds the typical 3-year requirement","ICU and emergency department background demonstrates high-pressure clinical competence","Certified in BLS, ACLS, and PALS — all standard requirements for acute care nursing roles","Proficient in Epic, Meditech, and Cerner EMR systems — adaptable to any hospital setup","Patient-facing communication experience across diverse demographics and clinical contexts","Continuing education record shows commitment to professional development"],gaps:["No explicitly mentioned leadership or charge nurse experience — worth exploring in interview","Community health experience not referenced — relevant if the role has outreach components"],certs:[{n:"🏥 Registered Nurse (RN) License",s:"present"},{n:"💓 BLS Certification",s:"present"},{n:"🚨 ACLS Certification",s:"present"},{n:"👶 PALS Certification",s:"present"},{n:"📋 EMR Proficiency (Epic)",s:"present"},{n:"🎓 BSc Nursing",s:"present"},{n:"👑 Charge Nurse Experience",s:"partial"},{n:"🌍 Community Health",s:"missing"}],feedback:"Dear Amara, thank you for your application. After careful review of your profile, we are delighted to invite you to the next stage of our selection process. Your 6-year clinical background, ICU specialization, and comprehensive certification portfolio represent exactly the calibre of nursing professional we are seeking.",questions:[{t:"Clinical Decision Making",q:"Describe a time in the ICU when you had to make a rapid clinical decision without immediate physician support. What was your process and outcome?"},{t:"Leadership Potential",q:"Have you ever informally led a team or mentored junior nurses? How would you approach taking on charge nurse responsibilities?"},{t:"Patient Communication",q:"Tell me about a time you had to communicate difficult news to a patient or family member with limited health literacy."}]},
+  2:{name:"Dr. James Afolabi",role:"MBBS Medical Doctor · Applying for Medical Secretary Role",emoji:"👨‍⚕️",avatarClass:"avatar-amber",ctags:[{t:"MBBS Qualified",c:"cert-present"},{t:"Overqualified",c:"cert-partial"},{t:"Role Mismatch",c:"cert-missing"}],score:41,scoreColor:"#F59E0B",scoreClass:"sc-medium",verdict:"Overqualified — Significant Role Mismatch",summary:"Dr. Afolabi is exceptionally qualified as a physician but is applying for an administrative role that significantly underutilizes his clinical training. The mismatch raises questions about motivation, retention risk, and long-term fit.",recLabel:"⚠ Proceed with Caution",recClass:"rec-review",strengths:["MBBS qualification provides deep clinical understanding — valuable in a medical environment","Strong written communication from clinical documentation experience","Understands medical terminology at the highest level — zero learning curve","Experience coordinating with multidisciplinary teams during clinical rotations"],gaps:["No administrative, secretarial, or medical office experience — the core requirement of this role","Significant overqualification raises serious retention risk — likely to leave for a clinical post","No EMR administrative module experience — clinical use differs from admin workflows","Motivation for applying to admin role with MBBS is unclear and requires direct exploration","Salary expectations may significantly exceed the administrative compensation band"],certs:[{n:"🩺 MBBS Medical Degree",s:"present"},{n:"📁 Medical Secretarial Training",s:"missing"},{n:"💻 Administrative EMR Modules",s:"missing"},{n:"📞 Medical Reception Experience",s:"missing"},{n:"📋 Medical Coding Knowledge",s:"partial"},{n:"🗂️ Office Administration",s:"missing"}],feedback:"Dear Dr. Afolabi, thank you for your application for the Medical Secretary position. We have reviewed your impressive clinical credentials and would like to discuss your interest in this role further. We have specific questions about your career goals and how this administrative position aligns with your long-term aspirations.",questions:[{t:"Motivation & Career Goals",q:"You hold an MBBS qualification yet are applying for a Medical Secretary role. Can you walk us through your thinking and what you are hoping to achieve?"},{t:"Retention & Commitment",q:"If a clinical position became available during your time in this role, how would you handle that? What is your honest timeline commitment?"},{t:"Salary Expectations",q:"The compensation for this role is at the administrative band. Can you confirm your salary expectations align with what we have advertised?"}]},
+  3:{name:"Sofia Mensah",role:"Hospitality Manager · Career Changer into Healthcare",emoji:"👩‍💼",avatarClass:"avatar-blue",ctags:[{t:"Strong Soft Skills",c:"cert-present"},{t:"Career Change",c:"cert-partial"},{t:"No Clinical Certs",c:"cert-missing"}],score:54,scoreColor:"#F59E0B",scoreClass:"sc-medium",verdict:"Moderate Match — Promising Transferable Skills",summary:"Sofia brings strong transferable skills from hospitality — patient communication, pressure handling, and team coordination. However she lacks clinical certifications, healthcare terminology knowledge, and medical environment experience.",recLabel:"◈ Consider for Junior Role",recClass:"rec-maybe",strengths:["7 years managing high-pressure customer-facing environments — transferable to healthcare admin","Proven team coordination and scheduling experience managing 30+ staff","Strong written and verbal communication — critical for patient correspondence","Experience handling complaints and difficult situations with professionalism","Demonstrated ability to learn complex operational systems quickly"],gaps:["Zero clinical certifications — no BLS, healthcare compliance, or medical terminology training","No exposure to EMR systems, medical coding, or healthcare administrative workflows","Unfamiliar with healthcare regulatory environment — HIPAA, clinical governance, patient confidentiality","No direct healthcare experience — significant learning curve for any clinical-adjacent role","Gap between hospitality and healthcare workflows may be larger than anticipated"],certs:[{n:"🏨 Hospitality Management Diploma",s:"present"},{n:"🗣️ Communication & Customer Service",s:"present"},{n:"🏥 Healthcare Administration Training",s:"missing"},{n:"💊 Medical Terminology",s:"missing"},{n:"💻 EMR System Knowledge",s:"missing"},{n:"📋 HIPAA / Data Compliance",s:"missing"},{n:"💓 BLS Certification",s:"missing"}],feedback:"Dear Sofia, thank you for your application and interest in transitioning into healthcare. Your hospitality background demonstrates strong communication and team coordination capabilities we value. However, the role requires specific healthcare administrative training and clinical environment familiarity that your profile does not currently reflect. We would encourage you to enroll in a healthcare administration programme and reapply once you have built that foundational knowledge.",questions:[{t:"Understanding of the Role",q:"What research have you done specifically about healthcare administration, and what surprised you most about how it differs from hospitality?"},{t:"Learning Plan",q:"What steps are you actively taking to build healthcare knowledge — any courses, certifications, or shadowing experience planned?"},{t:"Handling Clinical Situations",q:"A patient phones in distress after receiving a concerning test result. How would you handle that call as a front desk administrator?"}]},
+  4:{name:"Kevin Adeyemi",role:"Retail Supervisor · No Healthcare Experience",emoji:"👨‍💼",avatarClass:"avatar-red",ctags:[{t:"No Healthcare Exp",c:"cert-missing"},{t:"No Clinical Certs",c:"cert-missing"},{t:"Poor Match",c:"cert-missing"}],score:14,scoreColor:"#EF4444",scoreClass:"sc-weak",verdict:"Poor Match — Not Recommended",summary:"Kevin's retail supervision background shows general management skills but lacks any clinical, administrative, or regulatory knowledge required for a healthcare role. There is no meaningful overlap with the position requirements.",recLabel:"✕ Do Not Progress",recClass:"rec-no",strengths:["Basic team management and scheduling experience transferable at a fundamental level","Customer-facing communication skills present at a surface level"],gaps:["Zero healthcare or clinical experience of any kind","No healthcare certifications — BLS, first aid, medical terminology all absent","No knowledge of EMR systems, patient data handling, or medical administrative processes","No understanding of healthcare regulatory requirements — HIPAA, clinical governance, confidentiality","Retail supervision has minimal transferable value to clinical healthcare administration","Application shows no awareness of what a healthcare administrative role involves","No evidence of research or preparation for a career change into healthcare"],certs:[{n:"🏥 Healthcare Certification",s:"missing"},{n:"💓 BLS / First Aid",s:"missing"},{n:"💻 EMR System Knowledge",s:"missing"},{n:"📋 Medical Terminology",s:"missing"},{n:"🔒 HIPAA / Patient Data Compliance",s:"missing"},{n:"🎓 Healthcare Administration",s:"missing"}],feedback:"Dear Kevin, thank you for your interest in the healthcare position. After careful review of your application, we regret that we are unable to progress your candidacy at this time. The role requires specific healthcare administrative training and clinical environment experience that your current profile does not reflect. We encourage you to explore healthcare entry pathways such as healthcare support worker roles or medical administration courses before applying for clinical administrative positions.",questions:[{t:"If Proceeding",q:"What specifically drew you to healthcare administration, and what do you understand about how it differs from retail management?"},{t:"Knowledge Check",q:"Can you tell us what EMR stands for and why it is important in healthcare administration?"},{t:"Compliance Awareness",q:"What do you know about patient data confidentiality requirements in a healthcare setting?"}]}
+};
+
+let selectedProfile=null;
+let stepInterval=null;
+
+function selectProfile(id){
+  selectedProfile=id;
+  [1,2,3,4].forEach(i=>document.getElementById('card-'+i).classList.toggle('active',i===id));
+  if(!document.getElementById('jdInput').value.trim()){
+    document.getElementById('jdInput').value=sampleJD;
+    document.getElementById('jdCount').textContent=sampleJD.length.toLocaleString()+' chars';
+    document.getElementById('roleInput').value='Medical Secretary / Clinical Coordinator';
+  }
+}
+
+document.getElementById('jdInput').addEventListener('input',function(){
+  document.getElementById('jdCount').textContent=this.value.length.toLocaleString()+' chars';
+});
+
+function showError(msg){
+  document.getElementById('errorText').textContent=msg;
+  document.getElementById('errorBox').classList.add('active');
+}
+
+function runScreening(){
+  if(!selectedProfile){showError('Please select a candidate profile to screen.');return;}
+  const jd=document.getElementById('jdInput').value.trim();
+  if(!jd||jd.length<30){showError('Please paste a job description or select a profile to auto-load one.');return;}
+  document.getElementById('inputSection').style.display='none';
+  document.getElementById('errorBox').classList.remove('active');
+  document.getElementById('loadingState').classList.add('active');
+  document.getElementById('screenBtn').disabled=true;
+  let si=0;
+  stepInterval=setInterval(()=>{
+    if(si>0)document.getElementById('step-'+si).classList.remove('active');
+    si++;
+    if(si<=5)document.getElementById('step-'+si).classList.add('active');
+    else clearInterval(stepInterval);
+  },600);
+  setTimeout(()=>{clearInterval(stepInterval);renderResults(profiles[selectedProfile]);},3800);
+}
+
+function renderResults(p){
+  document.getElementById('loadingState').classList.remove('active');
+  document.getElementById('candidateBanner').innerHTML=`
+    <div class="candidate-avatar-lg ${p.avatarClass}" style="border-color:${p.scoreColor}44">${p.emoji}</div>
+    <div class="candidate-info">
+      <div class="candidate-name">${esc(p.name)}</div>
+      <div class="candidate-role-tag">${esc(p.role)}</div>
+      <div class="candidate-tags">${p.ctags.map(t=>`<span class="ctag ${t.c}">${esc(t.t)}</span>`).join('')}</div>
+    </div>`;
+  const r=46,circ=2*Math.PI*r,dash=(p.score/100)*circ;
+  document.getElementById('scoreCard').className='score-card '+p.scoreClass;
+  document.getElementById('scoreCard').innerHTML=`
+    <div class="score-donut">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="${r}" fill="none" stroke="#1E3050" stroke-width="10"/>
+        <circle cx="55" cy="55" r="${r}" fill="none" stroke="${p.scoreColor}" stroke-width="10" stroke-linecap="round"
+          stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" style="filter:drop-shadow(0 0 8px ${p.scoreColor}66)"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-pct">${p.score}%</div>
+        <div class="score-lbl">Match</div>
+      </div>
+    </div>
+    <div class="score-info">
+      <div class="score-verdict">${esc(p.verdict)}</div>
+      <div class="score-summary">${esc(p.summary)}</div>
+      <div class="rec-badge ${p.recClass}">${p.recLabel}</div>
+    </div>`;
+  document.getElementById('strengthsList').innerHTML=p.strengths.map(s=>`<div class="rc-item"><div class="rc-dot dot-g"></div><div>${esc(s)}</div></div>`).join('');
+  document.getElementById('gapsList').innerHTML=p.gaps.map(g=>`<div class="rc-item"><div class="rc-dot dot-r"></div><div>${esc(g)}</div></div>`).join('');
+  document.getElementById('certsGrid').innerHTML=p.certs.map(c=>`<span class="cert-chip cert-${c.s}">${c.s==='present'?'✓':c.s==='partial'?'≈':'✕'} ${esc(c.n)}</span>`).join('');
+  document.getElementById('feedbackText').textContent=p.feedback;
+  document.getElementById('interviewList').innerHTML=p.questions.map((q,i)=>`<div class="iq-item"><div class="iq-num">0${i+1}</div><div class="iq-body"><strong>${esc(q.t)}</strong><p>${esc(q.q)}</p></div></div>`).join('');
+  document.getElementById('resultsSection').classList.add('active');
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetTool(){
+  selectedProfile=null;
+  document.getElementById('inputSection').style.display='block';
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('loadingState').classList.remove('active');
+  document.getElementById('screenBtn').disabled=false;
+  document.getElementById('errorBox').classList.remove('active');
+  [1,2,3,4].forEach(i=>document.getElementById('card-'+i).classList.remove('active'));
+  [1,2,3,4,5].forEach(i=>document.getElementById('step-'+i)?.classList.remove('active'));
+}
+
+function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
